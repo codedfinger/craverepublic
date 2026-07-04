@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Crave Republic ordering API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: orders
+    description: Order operations
+  - name: menu
+    description: Menu operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,63 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /menu:
+    get:
+      operationId: getMenu
+      tags: [menu]
+      summary: Get full menu
+      description: Returns all menu items grouped by category
+      responses:
+        "200":
+          description: Menu items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MenuItem"
+
+  /orders:
+    post:
+      operationId: placeOrder
+      tags: [orders]
+      summary: Place a new order
+      description: Submits an order and sends email notification to the shop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /orders/stats:
+    get:
+      operationId: getOrderStats
+      tags: [orders]
+      summary: Get order statistics
+      description: Returns total orders count and popular items
+      responses:
+        "200":
+          description: Order stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +95,98 @@ components:
       required:
         - status
 
+    MenuItem:
+      type: object
+      required: [id, name, category, price]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: integer
+          description: Price in Naira
+
+    OrderItem:
+      type: object
+      required: [menuItemId, quantity, name, price]
+      properties:
+        menuItemId:
+          type: integer
+        name:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: integer
+
+    OrderInput:
+      type: object
+      required: [customerName, items]
+      properties:
+        customerName:
+          type: string
+          minLength: 1
+        customerPhone:
+          type: ["string", "null"]
+        customerNote:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+          minItems: 1
+
+    Order:
+      type: object
+      required: [id, customerName, items, totalAmount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        customerName:
+          type: string
+        customerPhone:
+          type: ["string", "null"]
+        customerNote:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        totalAmount:
+          type: integer
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    OrderStats:
+      type: object
+      required: [totalOrders, totalRevenue, popularItems]
+      properties:
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: integer
+        popularItems:
+          type: array
+          items:
+            type: object
+            required: [name, count]
+            properties:
+              name:
+                type: string
+              count:
+                type: integer
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
