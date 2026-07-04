@@ -146,34 +146,23 @@ export default function Home() {
     <div className="min-h-screen bg-background font-sans text-foreground pb-20 md:pb-0">
       {/* Header Banner */}
       <div className="w-full bg-[#1a0800]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch">
-          {/* Flier image — left */}
-          <div className="md:w-1/2 flex-shrink-0">
-            <img
-              src={flierImage}
-              alt="YB Shawarma Spot Flier"
-              className="w-full h-64 md:h-full object-cover object-center"
-            />
-          </div>
-          {/* Branding — right */}
-          <div className="md:w-1/2 flex flex-col justify-center px-8 py-10 text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight text-[#E35A1A]">
-              Crave Republic
-            </h1>
-            <p className="text-white/80 text-lg mb-8">
-              Warm, appetizing, and bold. The best shawarma, fries, and fresh juice in Abuja.
-            </p>
-            <div className="flex flex-col gap-3 text-sm text-white/80">
-              <span className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#E35A1A]" /> 07037325337
-              </span>
-              <span className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#E35A1A]" /> New site, off T - Pumpy Estate, Lugbe, Abuja
-              </span>
-              <span className="flex items-center gap-2">
-                <Instagram className="w-4 h-4 text-[#E35A1A]" /> @craverepublicabuja
-              </span>
-            </div>
+        <div className="max-w-7xl mx-auto px-8 py-12 text-white">
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight text-[#E35A1A]">
+            Crave Republic
+          </h1>
+          <p className="text-white/80 text-lg mb-8 max-w-xl">
+            Warm, appetizing, and bold. The best shawarma, fries, and fresh juice in Abuja.
+          </p>
+          <div className="flex flex-wrap gap-6 text-sm text-white/80">
+            <span className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-[#E35A1A]" /> 07037325337
+            </span>
+            <span className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-[#E35A1A]" /> New site, off T - Pumpy Estate, Lugbe, Abuja
+            </span>
+            <span className="flex items-center gap-2">
+              <Instagram className="w-4 h-4 text-[#E35A1A]" /> @craverepublicabuja
+            </span>
           </div>
         </div>
       </div>
