@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "IN8MSTUgntZO_HfuG-gEO"
+uri = "file://crave-republic-qr.png"
+type = "image"
+title = "Crave Republic QR Code"
