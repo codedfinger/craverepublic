@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 // Assets
-import heroImage from "@assets/1783165982523_1783167214608.png";
+import flierImage from "@assets/IMG-20260704-WA0020_1783167927810.jpg";
 
 const orderFormSchema = z.object({
   customerName: z.string().min(2, "Name is required"),
@@ -145,30 +145,35 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground pb-20 md:pb-0">
       {/* Header Banner */}
-      <div className="w-full bg-primary overflow-hidden relative">
-        <div className="absolute inset-0 bg-black/20 z-10" />
-        <img 
-          src={heroImage} 
-          alt="Crave Republic Flier" 
-          className="w-full h-64 md:h-96 object-cover object-center opacity-90"
-        />
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-black/80 to-transparent">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight">
-            Crave Republic
-          </h1>
-          <p className="text-white/90 text-lg md:text-xl max-w-lg mb-6">
-            Warm, appetizing, and bold. The best shawarma, fries, and fresh juice in Abuja.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-white/90">
-            <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm">
-              <Phone className="w-4 h-4" /> 07037325337
-            </span>
-            <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm">
-              <MapPin className="w-4 h-4" /> Lugbe, Abuja
-            </span>
-            <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm">
-              <Instagram className="w-4 h-4" /> @craverepublicabuja
-            </span>
+      <div className="w-full bg-[#1a0800]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch">
+          {/* Flier image — left */}
+          <div className="md:w-1/2 flex-shrink-0">
+            <img
+              src={flierImage}
+              alt="YB Shawarma Spot Flier"
+              className="w-full h-64 md:h-full object-cover object-center"
+            />
+          </div>
+          {/* Branding — right */}
+          <div className="md:w-1/2 flex flex-col justify-center px-8 py-10 text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight text-[#E35A1A]">
+              Crave Republic
+            </h1>
+            <p className="text-white/80 text-lg mb-8">
+              Warm, appetizing, and bold. The best shawarma, fries, and fresh juice in Abuja.
+            </p>
+            <div className="flex flex-col gap-3 text-sm text-white/80">
+              <span className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#E35A1A]" /> 07037325337
+              </span>
+              <span className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#E35A1A]" /> New site, off T - Pumpy Estate, Lugbe, Abuja
+              </span>
+              <span className="flex items-center gap-2">
+                <Instagram className="w-4 h-4 text-[#E35A1A]" /> @craverepublicabuja
+              </span>
+            </div>
           </div>
         </div>
       </div>
