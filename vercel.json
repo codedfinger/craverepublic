@@ -2,6 +2,6 @@
   "version": 2,
   "framework": null,
   "buildCommand": "pnpm --filter @workspace/crave-republic run build",
-  "outputDirectory": "artifacts/crave-republic/dist/public",
+  "outputDirectory": "dist",
   "installCommand": "pnpm install --frozen-lockfile"
 }
