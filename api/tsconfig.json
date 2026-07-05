@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["./**/*.ts"],
+  "references": [
+    { "path": "../lib/db" },
+    { "path": "../lib/api-zod" }
+  ]
+}
