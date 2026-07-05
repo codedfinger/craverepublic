@@ -5,10 +5,13 @@ let client: SupabaseClient | null = null;
 export function getSupabase(): SupabaseClient {
   if (!client) {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const supabaseKey =
+      process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error("SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY must be set");
+      throw new Error(
+        "SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY (or SUPABASE_ANON_KEY) must be set",
+      );
     }
 
     client = createClient(supabaseUrl, supabaseKey);

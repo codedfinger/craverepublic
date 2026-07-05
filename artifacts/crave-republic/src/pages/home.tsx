@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from "react";
-import { useGetMenu, usePlaceOrder, getGetMenuQueryKey } from "@workspace/api-client-react";
-import type { MenuItem } from "@workspace/api-client-react/src/generated/api.schemas";
+import { usePlaceOrder } from "@workspace/api-client-react";
+import type { MenuItem } from "@/lib/supabase";
+import { useMenu } from "@/hooks/use-menu";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, ShoppingBag, Plus, Minus, Trash2, MapPin, Phone, Instagram, CheckCircle2 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,10 +32,9 @@ interface CartItem extends MenuItem {
 }
 
 export default function Home() {
-  const { data: menuItems, isLoading: isMenuLoading } = useGetMenu();
+  const { data: menuItems, isLoading: isMenuLoading, isError: isMenuError } = useMenu();
   const placeOrder = usePlaceOrder();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
@@ -179,6 +178,20 @@ export default function Home() {
           {isMenuLoading ? (
             <div className="flex justify-center items-center py-20">
               <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : isMenuError ? (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center">
+              <p className="font-medium text-destructive">Could not load the menu</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Check that Supabase environment variables are set in Vercel, then redeploy.
+              </p>
+            </div>
+          ) : Object.keys(menuByCategory).length === 0 ? (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center">
+              <p className="font-medium">No menu items yet</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Add items to the menu_items table in Supabase.
+              </p>
             </div>
           ) : (
             <div className="space-y-12">
