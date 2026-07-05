@@ -91,7 +91,7 @@ export default function Home() {
       return [...prev, { ...item, quantity: 1 }];
     });
     toast({
-      title: "Added to cart",
+      title: "Added to order",
       description: `${item.name} added.`,
       duration: 2000,
     });
@@ -120,7 +120,7 @@ export default function Home() {
   const onSubmit = (data: OrderFormValues) => {
     if (cart.length === 0) {
       toast({
-        title: "Cart is empty",
+        title: "Order is empty",
         description: "Please add some items to your order first.",
         variant: "destructive",
       });
@@ -197,7 +197,7 @@ export default function Home() {
         <div className="flex-1">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-foreground mb-2">Our Menu</h2>
-            <p className="text-muted-foreground">Select your favorites to add them to your cart.</p>
+            <p className="text-muted-foreground">Select your favorites to add them to your order.</p>
           </div>
 
           {isMenuLoading ? (
@@ -271,7 +271,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Cart & Checkout Section */}
+        {/* Order & Checkout Section */}
         <div className="w-full lg:w-96 shrink-0 lg:sticky lg:top-8 h-fit space-y-6">
           <Card className="border-primary/20 shadow-lg shadow-primary/5">
             <CardContent className="p-6">
@@ -279,13 +279,13 @@ export default function Home() {
                 <div className="bg-primary/10 p-2 rounded-full text-primary">
                   <ShoppingBag className="w-6 h-6" />
                 </div>
-                <h2 className="text-2xl font-bold">Your Cart</h2>
+                <h2 className="text-2xl font-bold">Your Order</h2>
               </div>
 
               {cart.length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground flex flex-col items-center">
                   <ShoppingBag className="w-12 h-12 mb-3 text-muted-foreground/30" />
-                  <p>Your cart is empty.</p>
+                  <p>Your order is empty.</p>
                   <p className="text-sm mt-1">Add some delicious items from the menu!</p>
                 </div>
               ) : (
