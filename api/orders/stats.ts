@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
 import type { OrderItem } from "../lib/supabase";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -8,7 +8,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { data: orders, error } = await supabase
+    const { data: orders, error } = await getSupabase()
       .from("orders")
       .select("total_amount, items")
       .order("created_at", { ascending: false })

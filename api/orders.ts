@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { supabase } from "./lib/supabase";
+import { getSupabase } from "./lib/supabase";
 import { z } from "zod";
 
 const OrderItemSchema = z.object({
@@ -79,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   );
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from("orders")
       .insert({
         customer_name: customerName,

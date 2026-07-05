@@ -19,7 +19,7 @@ run = "pnpm --filter @workspace/crave-republic run dev"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/crave-republic", "run", "build" ]
-publicDir = "artifacts/crave-republic/dist/public"
+publicDir = "artifacts/crave-republic/dist"
 serve = "static"
 
 [[services.production.rewrites]]

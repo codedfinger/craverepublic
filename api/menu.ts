@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { supabase } from "./lib/supabase";
+import { getSupabase } from "./lib/supabase";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from("menu_items")
       .select("*")
       .order("category")
