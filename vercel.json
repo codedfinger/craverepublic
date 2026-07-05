@@ -3,5 +3,5 @@
   "framework": null,
   "buildCommand": "pnpm --filter @workspace/crave-republic run build",
   "outputDirectory": "dist",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "installCommand": "pnpm install"
 }
