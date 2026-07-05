@@ -1,6 +1,20 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { db, ordersTable } from "@workspace/db";
-import { PlaceOrderBody } from "@workspace/api-zod";
+import { supabase } from "./lib/supabase";
+import { z } from "zod";
+
+const OrderItemSchema = z.object({
+  menuItemId: z.number(),
+  name: z.string(),
+  quantity: z.number().int().positive(),
+  price: z.number().int().positive(),
+});
+
+const PlaceOrderSchema = z.object({
+  customerName: z.string().min(1),
+  customerPhone: z.string().optional().nullable(),
+  customerNote: z.string().optional().nullable(),
+  items: z.array(OrderItemSchema).min(1),
+});
 
 async function sendOrderEmail(order: {
   id: number;
@@ -53,53 +67,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const parsed = PlaceOrderBody.safeParse(req.body);
+  const parsed = PlaceOrderSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid order data" });
   }
 
   const { customerName, customerPhone, customerNote, items } = parsed.data;
   const totalAmount = items.reduce(
-    (acc: number, item: { price: number; quantity: number }) =>
-      acc + item.price * item.quantity,
+    (acc, item) => acc + item.price * item.quantity,
     0
   );
 
   try {
-    const [order] = await db
-      .insert(ordersTable)
-      .values({
-        customerName,
-        customerPhone: customerPhone ?? null,
-        customerNote: customerNote ?? null,
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        customer_name: customerName,
+        customer_phone: customerPhone ?? null,
+        customer_note: customerNote ?? null,
         items,
-        totalAmount,
+        total_amount: totalAmount,
         status: "pending",
       })
-      .returning();
+      .select()
+      .single();
+
+    if (error) throw error;
 
     sendOrderEmail({
-      id: order.id,
-      customerName: order.customerName,
-      customerPhone: order.customerPhone ?? null,
-      customerNote: order.customerNote ?? null,
-      items: items.map((i: { name: string; quantity: number; price: number }) => ({
-        name: i.name,
-        quantity: i.quantity,
-        price: i.price,
-      })),
-      totalAmount: order.totalAmount,
+      id: data.id,
+      customerName: data.customer_name,
+      customerPhone: data.customer_phone,
+      customerNote: data.customer_note,
+      items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+      totalAmount: data.total_amount,
     }).catch((err) => console.error("Email send failed:", err));
 
     return res.status(201).json({
-      id: order.id,
-      customerName: order.customerName,
-      customerPhone: order.customerPhone ?? null,
-      customerNote: order.customerNote ?? null,
-      items: order.items,
-      totalAmount: order.totalAmount,
-      status: order.status,
-      createdAt: order.createdAt.toISOString(),
+      id: data.id,
+      customerName: data.customer_name,
+      customerPhone: data.customer_phone ?? null,
+      customerNote: data.customer_note ?? null,
+      items: data.items,
+      totalAmount: data.total_amount,
+      status: data.status,
+      createdAt: data.created_at,
     });
   } catch (err) {
     console.error("Failed to place order:", err);

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { db, ordersTable } from "@workspace/db";
-import { desc, count, sum } from "drizzle-orm";
+import { supabase } from "../lib/supabase";
+import type { OrderItem } from "../lib/supabase";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -8,25 +8,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const [stats] = await db
-      .select({
-        totalOrders: count(ordersTable.id),
-        totalRevenue: sum(ordersTable.totalAmount),
-      })
-      .from(ordersTable);
-
-    const allOrders = await db
-      .select({ items: ordersTable.items })
-      .from(ordersTable)
-      .orderBy(desc(ordersTable.createdAt))
+    const { data: orders, error } = await supabase
+      .from("orders")
+      .select("total_amount, items")
+      .order("created_at", { ascending: false })
       .limit(100);
 
+    if (error) throw error;
+
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce(
+      (sum, o) => sum + (o.total_amount as number),
+      0
+    );
+
     const itemCounts: Record<string, number> = {};
-    for (const order of allOrders) {
-      for (const item of order.items as Array<{
-        name: string;
-        quantity: number;
-      }>) {
+    for (const order of orders) {
+      for (const item of (order.items as OrderItem[]) ?? []) {
         itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
       }
     }
@@ -36,11 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .slice(0, 5)
       .map(([name, count]) => ({ name, count }));
 
-    return res.json({
-      totalOrders: Number(stats?.totalOrders ?? 0),
-      totalRevenue: Number(stats?.totalRevenue ?? 0),
-      popularItems,
-    });
+    return res.json({ totalOrders, totalRevenue, popularItems });
   } catch (err) {
     console.error("Failed to get order stats:", err);
     return res.status(500).json({ error: "Failed to get stats" });

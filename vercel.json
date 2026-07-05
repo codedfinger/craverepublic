@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run typecheck:libs && pnpm --filter @workspace/crave-republic run build",
+  "buildCommand": "pnpm --filter @workspace/crave-republic run build",
   "outputDirectory": "artifacts/crave-republic/dist/public",
   "installCommand": "pnpm install --frozen-lockfile",
   "rewrites": [

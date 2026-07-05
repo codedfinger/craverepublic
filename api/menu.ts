@@ -1,16 +1,19 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { db, menuItemsTable } from "@workspace/db";
+import { supabase } from "./lib/supabase";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
   try {
-    const items = await db
-      .select()
-      .from(menuItemsTable)
-      .orderBy(menuItemsTable.category, menuItemsTable.id);
-    return res.json(items);
+    const { data, error } = await supabase
+      .from("menu_items")
+      .select("*")
+      .order("category")
+      .order("id");
+
+    if (error) throw error;
+    return res.json(data);
   } catch (err) {
     console.error("Failed to get menu:", err);
     return res.status(500).json({ error: "Failed to fetch menu" });

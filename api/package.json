@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@workspace/db": "workspace:*",
-    "@workspace/api-zod": "workspace:*",
-    "drizzle-orm": "catalog:",
+    "@supabase/supabase-js": "^2.50.3",
     "zod": "catalog:"
   },
   "devDependencies": {
