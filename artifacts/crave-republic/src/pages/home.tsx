@@ -31,6 +31,26 @@ interface CartItem extends MenuItem {
   quantity: number;
 }
 
+const CATEGORY_ORDER = [
+  "Shawarma",
+  "Combo Offer",
+  "Fries",
+  "Popcorn",
+  "Breakfast",
+  "Fresh Juice",
+];
+
+function sortCategories(categories: string[]): string[] {
+  return [...categories].sort((a, b) => {
+    const aRank = CATEGORY_ORDER.indexOf(a);
+    const bRank = CATEGORY_ORDER.indexOf(b);
+    const aOrder = aRank === -1 ? CATEGORY_ORDER.length : aRank;
+    const bOrder = bRank === -1 ? CATEGORY_ORDER.length : bRank;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    return a.localeCompare(b);
+  });
+}
+
 export default function Home() {
   const { data: menuItems, isLoading: isMenuLoading, isError: isMenuError } = useMenu();
   const placeOrder = usePlaceOrder();
@@ -56,6 +76,11 @@ export default function Home() {
       return acc;
     }, {} as Record<string, MenuItem[]>);
   }, [menuItems]);
+
+  const sortedCategories = useMemo(
+    () => sortCategories(Object.keys(menuByCategory)),
+    [menuByCategory],
+  );
 
   const addToCart = (item: MenuItem) => {
     setCart((prev) => {
@@ -195,7 +220,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="space-y-12">
-              {Object.entries(menuByCategory).map(([category, items]) => (
+              {sortedCategories.map((category) => {
+                const items = menuByCategory[category];
+                return (
                 <div key={category} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h3 className="text-2xl font-bold border-b border-primary/20 pb-3 mb-6 flex items-center gap-3">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-md text-sm uppercase tracking-wider">
@@ -238,7 +265,8 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
