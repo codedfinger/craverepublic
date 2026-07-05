@@ -2,6 +2,11 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getSupabase } from "../lib/supabase";
 import type { OrderItem } from "../lib/supabase";
 
+type OrderStatsRow = {
+  total_amount: number;
+  items: OrderItem[] | null;
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -16,15 +21,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (error) throw error;
 
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce(
-      (sum, o) => sum + (o.total_amount as number),
-      0
+    const rows: OrderStatsRow[] = orders ?? [];
+    const totalOrders = rows.length;
+    const totalRevenue = rows.reduce(
+      (sum: number, order: OrderStatsRow) => sum + order.total_amount,
+      0,
     );
 
     const itemCounts: Record<string, number> = {};
-    for (const order of orders) {
-      for (const item of (order.items as OrderItem[]) ?? []) {
+    for (const order of rows) {
+      for (const item of order.items ?? []) {
         itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
       }
     }
