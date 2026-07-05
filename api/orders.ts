@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { Resend } from "resend";
 import { getSupabase } from "./lib/supabase";
 import { z } from "zod";
 
@@ -23,14 +24,21 @@ async function sendOrderEmail(order: {
   customerNote: string | null;
   items: Array<{ name: string; quantity: number; price: number }>;
   totalAmount: number;
-}) {
+}): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
+  if (!apiKey) {
+    console.error("RESEND_API_KEY is not set — order email was not sent");
+    return;
+  }
+
+  const to = process.env.ORDER_NOTIFICATION_EMAIL ?? "alexyikeh@gmail.com";
+  const from =
+    process.env.RESEND_FROM_EMAIL ?? "Crave Republic <onboarding@resend.dev>";
 
   const itemsList = order.items
     .map(
       (item) =>
-        `• ${item.quantity}x ${item.name} — ₦${(item.price * item.quantity).toLocaleString()}`
+        `• ${item.quantity}x ${item.name} — ₦${(item.price * item.quantity).toLocaleString()}`,
     )
     .join("\n");
 
@@ -47,19 +55,20 @@ ${itemsList}
 Total: ₦${order.totalAmount.toLocaleString()}
   `.trim();
 
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: "Crave Republic Orders <orders@resend.dev>",
-      to: ["alexyikeh@gmail.com"],
-      subject: `New Order #${order.id} from ${order.customerName}`,
-      text: emailBody,
-    }),
+  const resend = new Resend(apiKey);
+  const { data, error } = await resend.emails.send({
+    from,
+    to,
+    subject: `New Order #${order.id} from ${order.customerName}`,
+    text: emailBody,
   });
+
+  if (error) {
+    console.error("Resend email failed:", JSON.stringify(error));
+    return;
+  }
+
+  console.log("Order email sent:", data?.id);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -75,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { customerName, customerPhone, customerNote, items } = parsed.data;
   const totalAmount = items.reduce(
     (acc, item) => acc + item.price * item.quantity,
-    0
+    0,
   );
 
   try {
@@ -94,14 +103,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (error) throw error;
 
-    sendOrderEmail({
-      id: data.id,
-      customerName: data.customer_name,
-      customerPhone: data.customer_phone,
-      customerNote: data.customer_note,
-      items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
-      totalAmount: data.total_amount,
-    }).catch((err) => console.error("Email send failed:", err));
+    // Must await before responding — Vercel kills the function after the response.
+    try {
+      await sendOrderEmail({
+        id: data.id,
+        customerName: data.customer_name,
+        customerPhone: data.customer_phone,
+        customerNote: data.customer_note,
+        items: items.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          price: i.price,
+        })),
+        totalAmount: data.total_amount,
+      });
+    } catch (emailErr) {
+      console.error("Email send failed:", emailErr);
+    }
 
     return res.status(201).json({
       id: data.id,
